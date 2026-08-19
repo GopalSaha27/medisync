@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              //work subtitle............
+              //work subtitle.............
               Center(
                 child: Text(
                   'Manage your medication with ease'
