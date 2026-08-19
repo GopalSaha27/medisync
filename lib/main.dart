@@ -16,7 +16,7 @@ class MediSyncApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.pink,
+          seedColor: Colors.white,
         ),
       ),
       home: const HomeScreen(),
