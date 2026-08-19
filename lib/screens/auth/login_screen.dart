@@ -10,6 +10,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool _obscurePassword = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,8 +55,65 @@ class _LoginScreenState extends State<LoginScreen> {
               //work subtitle.............
               Center(
                 child: Text(
-                  'Manage your medication with ease'
+                  'Manage your medication with ease',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
+              ),
+              SizedBox(height: 45),
+
+              //work on email field..........
+              const AppTextField(
+                label: 'Email', 
+                hint: 'Enter your email', 
+                prefixIcon: Icons.email_outlined,
+              ),
+
+              const SizedBox(height: 18),
+
+              //work on password field.....
+              AppTextField(
+                label: 'Password', 
+                hint: 'Enter your paassword', 
+                prefixIcon: Icons.lock_outline,
+                obscureText:  _obscurePassword,//Password hide......
+              ),
+
+              SizedBox(height: 8),
+
+              //work on forgot password button.........
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: (){
+
+                  }, 
+                  child: const Text(
+                    'Forgot Password',
+                  ),
+                  ),
+              ),
+
+              SizedBox(height: 15),
+
+              //work on login button..........
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: (){
+
+                  },
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ),
               ),
             ],
           ),
