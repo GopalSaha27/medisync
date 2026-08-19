@@ -115,6 +115,40 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   ),
               ),
+
+              SizedBox(height: 25),
+
+              // Register Section...........
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don't have an account?",
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                    ),
+                    ),
+
+                    // work on register button..........
+                    TextButton(
+                      onPressed: (){
+                        Navigator.push(
+                          context,
+                           MaterialPageRoute(
+                            builder: (context) =>
+                            const RegisterScreen(),
+                            ),
+                           );
+                      },
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      ),
+                ],
+              ),
             ],
           ),
         ),
