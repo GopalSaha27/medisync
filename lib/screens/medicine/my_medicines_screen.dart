@@ -5,6 +5,37 @@ import 'edit_medicine_screen.dart';
 class MyMedicinesScreen extends StatelessWidget {
   const MyMedicinesScreen({super.key});
 
+  Future<void> _markMedicineAsTaken(
+    BuildContext context,
+    String documentId,
+  ) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('medicines')
+          .doc(documentId)
+          .update({
+        'isTaken': true,
+        'takenAt': Timestamp.now(),
+      });
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Medicine marked as taken!'),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update medicine: $e'),
+        ),
+      );
+    }
+  }
+
   Future<void> _deleteMedicine(
     BuildContext context,
     String documentId,
@@ -105,9 +136,7 @@ class MyMedicinesScreen extends StatelessWidget {
                     size: 70,
                     color: Colors.teal,
                   ),
-
                   SizedBox(height: 15),
-
                   Text(
                     'No medicines added yet!',
                     style: TextStyle(
@@ -115,9 +144,7 @@ class MyMedicinesScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   SizedBox(height: 5),
-
                   Text(
                     'Add your first medicine from the Home Screen.',
                   ),
@@ -149,6 +176,9 @@ class MyMedicinesScreen extends StatelessWidget {
 
               final String time =
                   data['time'] ?? '';
+
+              final bool isTaken =
+                  data['isTaken'] ?? false;
 
               final Timestamp? startDate =
                   data['startDate'];
@@ -204,7 +234,6 @@ class MyMedicinesScreen extends StatelessWidget {
                             ),
                           ),
 
-                          // Edit button
                           IconButton(
                             onPressed: () {
                               Navigator.push(
@@ -218,15 +247,12 @@ class MyMedicinesScreen extends StatelessWidget {
                                 ),
                               );
                             },
-
                             icon: const Icon(
                               Icons.edit_outlined,
                             ),
-
                             tooltip: 'Edit Medicine',
                           ),
 
-                          // Delete button
                           IconButton(
                             onPressed: () {
                               _deleteMedicine(
@@ -235,11 +261,9 @@ class MyMedicinesScreen extends StatelessWidget {
                                 name,
                               );
                             },
-
                             icon: const Icon(
                               Icons.delete_outline,
                             ),
-
                             tooltip: 'Delete Medicine',
                           ),
                         ],
@@ -253,12 +277,8 @@ class MyMedicinesScreen extends StatelessWidget {
                             Icons.medical_services_outlined,
                             size: 20,
                           ),
-
                           const SizedBox(width: 8),
-
-                          Text(
-                            'Dosage: $dosage',
-                          ),
+                          Text('Dosage: $dosage'),
                         ],
                       ),
 
@@ -270,12 +290,8 @@ class MyMedicinesScreen extends StatelessWidget {
                             Icons.category_outlined,
                             size: 20,
                           ),
-
                           const SizedBox(width: 8),
-
-                          Text(
-                            'Type: $type',
-                          ),
+                          Text('Type: $type'),
                         ],
                       ),
 
@@ -287,12 +303,8 @@ class MyMedicinesScreen extends StatelessWidget {
                             Icons.access_time,
                             size: 20,
                           ),
-
                           const SizedBox(width: 8),
-
-                          Text(
-                            'Time: $time',
-                          ),
+                          Text('Time: $time'),
                         ],
                       ),
 
@@ -304,13 +316,37 @@ class MyMedicinesScreen extends StatelessWidget {
                             Icons.calendar_today_outlined,
                             size: 20,
                           ),
-
                           const SizedBox(width: 8),
-
                           Text(
                             'Start Date: $formattedDate',
                           ),
                         ],
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: isTaken
+                              ? null
+                              : () {
+                                  _markMedicineAsTaken(
+                                    context,
+                                    medicine.id,
+                                  );
+                                },
+                          icon: Icon(
+                            isTaken
+                                ? Icons.check_circle
+                                : Icons.check,
+                          ),
+                          label: Text(
+                            isTaken
+                                ? 'Medicine Taken'
+                                : 'Mark as Taken',
+                          ),
+                        ),
                       ),
                     ],
                   ),
