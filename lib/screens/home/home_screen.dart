@@ -11,6 +11,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Set the background color of the home screen.
       backgroundColor: Colors.grey.shade50,
 
       // AppBar
@@ -22,23 +23,35 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
 
-        // Keep the title on the left side
+        // Keep the title on the left side.
         centerTitle: false,
 
-        // AppBar action buttons
+        // AppBar action buttons.
         actions: [
           IconButton(
             onPressed: () {
-              // Notification feature will be added later
+              // Open the Reminders screen.
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const RemindersScreen(),
+                ),
+              );
             },
+
+            // Notification bell icon.
             icon: const Icon(
               Icons.notifications_none,
             ),
+
+            // Show tooltip when the user holds the icon.
+            tooltip: 'Reminders',
           ),
         ],
       ),
 
-      // Main screen body
+      // Main screen body.
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -49,7 +62,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 10),
 
-              // Greeting text
+              // Greeting text.
               const Text(
                 'Hello 👋',
                 style: TextStyle(
@@ -60,7 +73,7 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 5),
 
-              // Welcome text
+              // Welcome text.
               const Text(
                 'Welcome to MediSync',
                 style: TextStyle(
@@ -71,7 +84,7 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              // Short description
+              // Short description.
               Text(
                 'Stay on track with your medications.',
                 style: TextStyle(
@@ -82,12 +95,12 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // Today's Schedule section
+              // Today's Schedule section.
               _buildTodaySchedule(context),
 
               const SizedBox(height: 30),
 
-              // Quick Actions title
+              // Quick Actions title.
               const Text(
                 'Quick Actions',
                 style: TextStyle(
@@ -98,7 +111,7 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 15),
 
-              // First row of action cards
+              // First row of action cards.
               Row(
                 children: [
                   Expanded(
@@ -106,7 +119,7 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.medication_outlined,
                       title: 'My Medicines',
 
-                      // Open My Medicines screen
+                      // Open My Medicines screen.
                       onTap: () {
                         Navigator.push(
                           context,
@@ -126,7 +139,7 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.history,
                       title: 'History',
 
-                      // History screen will be added later
+                      // History screen will be added later.
                       onTap: () {},
                     ),
                   ),
@@ -135,15 +148,16 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 15),
 
-              // Second row of action cards
+              // Second row of action cards.
               Row(
                 children: [
                   Expanded(
                     child: _buildActionCard(
-                      icon: Icons.notifications_active_outlined,
+                      icon:
+                          Icons.notifications_active_outlined,
                       title: 'Reminders',
 
-                      // Open Reminders screen
+                      // Open Reminders screen.
                       onTap: () {
                         Navigator.push(
                           context,
@@ -163,7 +177,7 @@ class HomeScreen extends StatelessWidget {
                       icon: Icons.person_outline,
                       title: 'Profile',
 
-                      // Profile screen will be added later
+                      // Profile screen will be added later.
                       onTap: () {},
                     ),
                   ),
@@ -176,7 +190,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Build the Today's Schedule section
+  // Build the Today's Schedule section.
   Widget _buildTodaySchedule(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -191,7 +205,7 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          // Section title
+          // Section title.
           const Text(
             'Today\'s Schedule',
             style: TextStyle(
@@ -203,7 +217,7 @@ class HomeScreen extends StatelessWidget {
 
           const SizedBox(height: 15),
 
-          // Load medicines from Firestore
+          // Load medicines from Firestore.
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('medicines')
@@ -214,7 +228,7 @@ class HomeScreen extends StatelessWidget {
                 .snapshots(),
 
             builder: (context, snapshot) {
-              // Show loading indicator while data is loading
+              // Show loading indicator while data is loading.
               if (snapshot.connectionState ==
                   ConnectionState.waiting) {
                 return const Center(
@@ -227,7 +241,7 @@ class HomeScreen extends StatelessWidget {
                 );
               }
 
-              // Show error message if Firestore returns an error
+              // Show error message if Firestore returns an error.
               if (snapshot.hasError) {
                 return const Text(
                   'Unable to load medicines.',
@@ -237,7 +251,7 @@ class HomeScreen extends StatelessWidget {
                 );
               }
 
-              // Show message when there are no medicines
+              // Show message when there are no medicines.
               if (!snapshot.hasData ||
                   snapshot.data!.docs.isEmpty) {
                 return const Text(
@@ -249,38 +263,38 @@ class HomeScreen extends StatelessWidget {
                 );
               }
 
-              // Get all medicine documents
+              // Get all medicine documents.
               final medicines = snapshot.data!.docs;
 
-              // Get today's date
+              // Get today's date.
               final today = DateTime.now();
 
-              // Filter medicines scheduled for today
+              // Filter medicines scheduled for today.
               final todayMedicines =
                   medicines.where((medicine) {
                 final data =
                     medicine.data()
                         as Map<String, dynamic>;
 
-                // Get medicine start date
+                // Get medicine start date.
                 final Timestamp? startDate =
                     data['startDate'];
 
-                // Ignore medicines without a start date
+                // Ignore medicines without a start date.
                 if (startDate == null) {
                   return false;
                 }
 
-                // Convert Firestore Timestamp to DateTime
+                // Convert Firestore Timestamp to DateTime.
                 final date = startDate.toDate();
 
-                // Check whether the date is today
+                // Check whether the date is today.
                 return date.year == today.year &&
                     date.month == today.month &&
                     date.day == today.day;
               }).toList();
 
-              // Show message when no medicine is scheduled today
+              // Show message when no medicine is scheduled today.
               if (todayMedicines.isEmpty) {
                 return const Text(
                   'No medicines scheduled for today.',
@@ -291,33 +305,35 @@ class HomeScreen extends StatelessWidget {
                 );
               }
 
-              // Display today's medicines
+              // Display today's medicines.
               return Column(
                 children: [
                   ...todayMedicines.map((medicine) {
-                    // Get medicine data
+                    // Get medicine data.
                     final data =
                         medicine.data()
                             as Map<String, dynamic>;
 
-                    // Get medicine name
+                    // Get medicine name.
                     final String name =
                         data['name'] ?? 'Unknown';
 
-                    // Get medicine dosage
+                    // Get medicine dosage.
                     final String dosage =
                         data['dosage'] ?? '';
 
-                    // Get medicine time
+                    // Get medicine time.
                     final String time =
                         data['time'] ?? '';
 
                     return Container(
-                      margin: const EdgeInsets.only(
+                      margin:
+                          const EdgeInsets.only(
                         bottom: 10,
                       ),
 
-                      padding: const EdgeInsets.all(14),
+                      padding:
+                          const EdgeInsets.all(14),
 
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -327,7 +343,7 @@ class HomeScreen extends StatelessWidget {
 
                       child: Row(
                         children: [
-                          // Medicine icon container
+                          // Medicine icon container.
                           Container(
                             padding:
                                 const EdgeInsets.all(8),
@@ -346,7 +362,7 @@ class HomeScreen extends StatelessWidget {
 
                           const SizedBox(width: 12),
 
-                          // Medicine name and dosage
+                          // Medicine name and dosage.
                           Expanded(
                             child: Column(
                               crossAxisAlignment:
@@ -377,7 +393,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
 
-                          // Medicine time
+                          // Medicine time.
                           Column(
                             crossAxisAlignment:
                                 CrossAxisAlignment.end,
@@ -413,13 +429,13 @@ class HomeScreen extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          // Add Medicine button
+          // Add Medicine button.
           SizedBox(
             width: double.infinity,
 
             child: ElevatedButton.icon(
               onPressed: () {
-                // Open Add Medicine screen
+                // Open Add Medicine screen.
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -443,17 +459,17 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Build reusable Quick Action Card
+  // Build reusable Quick Action Card.
   Widget _buildActionCard({
     required IconData icon,
     required String title,
     required VoidCallback onTap,
   }) {
     return InkWell(
-      // Handle card tap
+      // Handle card tap.
       onTap: onTap,
 
-      // Make the tap effect rounded
+      // Make the tap effect rounded.
       borderRadius: BorderRadius.circular(18),
 
       child: Container(
@@ -461,12 +477,14 @@ class HomeScreen extends StatelessWidget {
 
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius:
+              BorderRadius.circular(18),
 
-          // Add a soft shadow
+          // Add a soft shadow.
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color:
+                  Colors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -474,12 +492,12 @@ class HomeScreen extends StatelessWidget {
         ),
 
         child: Column(
-          // Center the icon and title vertically
+          // Center the icon and title vertically.
           mainAxisAlignment:
               MainAxisAlignment.center,
 
           children: [
-            // Action card icon
+            // Action card icon.
             Icon(
               icon,
               size: 35,
@@ -488,7 +506,7 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // Action card title
+            // Action card title.
             Text(
               title,
               style: const TextStyle(

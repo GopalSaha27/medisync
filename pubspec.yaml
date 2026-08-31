@@ -15,6 +15,7 @@ dependencies:
   firebase_core: ^4.14.0
   firebase_auth: ^6.5.7
   cloud_firestore: ^6.9.0
+  flutter_local_notifications: ^22.3.0
 
 dependency_overrides:
   firebase_core_web: 3.10.0
