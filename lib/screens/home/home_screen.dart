@@ -1,67 +1,66 @@
-import 'package:flutter/material.dart'; // Flutter-এর Material Design widgets ব্যবহার করার জন্য।
+import 'package:flutter/material.dart';
 import '../medicine/add_medicine_screen.dart';
+import '../medicine/my_medicines_screen.dart';
 
-class HomeScreen extends StatelessWidget { // এটি আমাদের Home/Dashboard screen।
-  const HomeScreen({super.key}); // Widget-এর constructor।
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) { // এই method screen-এর পুরো UI তৈরি করে।
-    return Scaffold( // একটি basic screen structure তৈরি করে।
-      backgroundColor: Colors.grey.shade50, // পুরো screen-এর background color।
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade50,
 
-      appBar: AppBar( // Screen-এর উপরের AppBar।
-        title: const Text( // AppBar-এর title।
+      appBar: AppBar(
+        title: const Text(
           'MediSync',
           style: TextStyle(
-            fontWeight: FontWeight.bold, // Text-কে bold করার জন্য।
+            fontWeight: FontWeight.bold,
           ),
         ),
 
-        centerTitle: false, // Title-কে left side-এ রাখে।
+        centerTitle: false,
 
-        actions: [ // AppBar-এর ডান পাশে widget রাখার জন্য।
-          IconButton( // একটি clickable icon button।
-            onPressed: () {
-              // পরে এখানে notification feature যোগ করব।
-            },
+        actions: [
+          IconButton(
+            onPressed: () {},
             icon: const Icon(
-              Icons.notifications_none, // Notification bell icon।
+              Icons.notifications_none,
             ),
           ),
         ],
       ),
 
-      body: SafeArea( // Status bar/notch থেকে UI safe রাখে।
-        child: SingleChildScrollView( // Screen ছোট হলে scroll করার সুবিধা দেয়।
-          padding: const EdgeInsets.all(20), // চারপাশে 20 pixel space দেয়।
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
 
-          child: Column( // সব widget-কে উপর থেকে নিচে সাজায়।
-            crossAxisAlignment: CrossAxisAlignment.start, // সব content left থেকে শুরু করে।
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              const SizedBox(height: 10), // উপরে একটু space দেয়।
+              const SizedBox(height: 10),
 
-              const Text( // Greeting text।
+              const Text(
                 'Hello 👋',
                 style: TextStyle(
-                  fontSize: 16, // Text-এর size।
-                  color: Colors.grey, // Text-এর color।
+                  fontSize: 16,
+                  color: Colors.grey,
                 ),
               ),
 
-              const SizedBox(height: 5), // দুইটা text-এর মাঝে space।
+              const SizedBox(height: 5),
 
-              const Text( // Main welcome text।
+              const Text(
                 'Welcome to MediSync',
                 style: TextStyle(
-                  fontSize: 26, // Text-এর size।
-                  fontWeight: FontWeight.bold, // Text bold করে।
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 8), // নিচে space দেয়।
+              const SizedBox(height: 8),
 
-              Text( // ছোট description text।
+              Text(
                 'Stay on track with your medications.',
                 style: TextStyle(
                   fontSize: 15,
@@ -69,23 +68,23 @@ class HomeScreen extends StatelessWidget { // এটি আমাদের Home/
                 ),
               ),
 
-              const SizedBox(height: 30), // Section-এর মাঝে বড় space।
+              const SizedBox(height: 30),
 
-              Container( // আজকের medicine summary card।
-                width: double.infinity, // পুরো available width নেয়।
-                padding: const EdgeInsets.all(20), // Card-এর ভিতরে space দেয়।
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
 
-                decoration: BoxDecoration( // Container-এর design।
-                  color: Colors.teal, // Card-এর background color।
-                  borderRadius: BorderRadius.circular(20), // Card-এর corner round করে।
+                decoration: BoxDecoration(
+                  color: Colors.teal,
+                  borderRadius: BorderRadius.circular(20),
                 ),
 
-                child: Column( // Card-এর ভিতরের content verticalভাবে সাজায়।
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     const Text(
-                      'Today\'s Schedule', // আজকের medicine section title।
+                      'Today\'s Schedule',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -96,7 +95,7 @@ class HomeScreen extends StatelessWidget { // এটি আমাদের Home/
                     const SizedBox(height: 10),
 
                     const Text(
-                      'No medicines scheduled yet', // এখনো database না থাকায় placeholder text।
+                      'No medicines scheduled yet',
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
@@ -105,12 +104,13 @@ class HomeScreen extends StatelessWidget { // এটি আমাদের Home/
 
                     const SizedBox(height: 20),
 
-                    ElevatedButton.icon( // Icon + Text সহ button।
+                    ElevatedButton.icon(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const AddMedicineScreen(),
+                            builder: (context) =>
+                                const AddMedicineScreen(),
                           ),
                         );
                       },
@@ -127,9 +127,9 @@ class HomeScreen extends StatelessWidget { // এটি আমাদের Home/
                 ),
               ),
 
-              const SizedBox(height: 30), // নিচে বড় space।
+              const SizedBox(height: 30),
 
-              const Text( // Quick Actions section title।
+              const Text(
                 'Quick Actions',
                 style: TextStyle(
                   fontSize: 20,
@@ -139,27 +139,32 @@ class HomeScreen extends StatelessWidget { // এটি আমাদের Home/
 
               const SizedBox(height: 15),
 
-              Row( // দুইটি action card পাশাপাশি রাখে।
+              Row(
                 children: [
-                  Expanded( // Available জায়গার সমান অংশ নেয়।
-                    child: _buildActionCard( // প্রথম reusable action card।
+                  Expanded(
+                    child: _buildActionCard(
                       icon: Icons.medication_outlined,
                       title: 'My Medicines',
+
                       onTap: () {
-                        // পরে Medicine List screen-এ যাবে।
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const MyMedicinesScreen(),
+                          ),
+                        );
                       },
                     ),
                   ),
 
-                  const SizedBox(width: 15), // দুই card-এর মাঝে space।
+                  const SizedBox(width: 15),
 
-                  Expanded( // দ্বিতীয় card-ও সমান জায়গা নেয়।
+                  Expanded(
                     child: _buildActionCard(
                       icon: Icons.history,
                       title: 'History',
-                      onTap: () {
-                        // পরে History screen-এ যাবে।
-                      },
+                      onTap: () {},
                     ),
                   ),
                 ],
@@ -167,15 +172,13 @@ class HomeScreen extends StatelessWidget { // এটি আমাদের Home/
 
               const SizedBox(height: 15),
 
-              Row( // দ্বিতীয় row-তে আরও দুইটি action card।
+              Row(
                 children: [
                   Expanded(
                     child: _buildActionCard(
                       icon: Icons.notifications_active_outlined,
                       title: 'Reminders',
-                      onTap: () {
-                        // পরে Reminder screen-এ যাবে।
-                      },
+                      onTap: () {},
                     ),
                   ),
 
@@ -185,9 +188,7 @@ class HomeScreen extends StatelessWidget { // এটি আমাদের Home/
                     child: _buildActionCard(
                       icon: Icons.person_outline,
                       title: 'Profile',
-                      onTap: () {
-                        // পরে Profile screen-এ যাবে।
-                      },
+                      onTap: () {},
                     ),
                   ),
                 ],
@@ -199,46 +200,46 @@ class HomeScreen extends StatelessWidget { // এটি আমাদের Home/
     );
   }
 
-  Widget _buildActionCard({ // একই design-এর action card বারবার বানানোর জন্য reusable method।
-    required IconData icon, // কোন icon দেখাবে।
-    required String title, // Card-এর title।
-    required VoidCallback onTap, // Card-এ click করলে কী হবে।
+  Widget _buildActionCard({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
   }) {
-    return InkWell( // পুরো card-কে clickable করার জন্য।
+    return InkWell(
       onTap: onTap,
 
-      borderRadius: BorderRadius.circular(18), // Click effect-ও round corner অনুযায়ী হয়।
+      borderRadius: BorderRadius.circular(18),
 
-      child: Container( // Card-এর মূল design।
-        height: 130, // Card-এর fixed height।
+      child: Container(
+        height: 130,
 
         decoration: BoxDecoration(
-          color: Colors.white, // Card-এর background।
-          borderRadius: BorderRadius.circular(18), // Card-এর corner round করে।
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
 
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05), // হালকা shadow।
-              blurRadius: 10, // Shadow কতটা soft হবে।
-              offset: const Offset(0, 4), // Shadow নিচের দিকে দেয়।
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
 
-        child: Column( // Icon এবং text vertically সাজায়।
-          mainAxisAlignment: MainAxisAlignment.center, // Content vertically center করে।
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
             Icon(
-              icon, // Method থেকে পাওয়া icon দেখায়।
-              size: 35, // Icon-এর size।
-              color: Colors.teal, // Icon-এর color।
+              icon,
+              size: 35,
+              color: Colors.teal,
             ),
 
-            const SizedBox(height: 12), // Icon এবং text-এর মাঝে space।
+            const SizedBox(height: 12),
 
             Text(
-              title, // Method থেকে পাওয়া title দেখায়।
+              title,
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
