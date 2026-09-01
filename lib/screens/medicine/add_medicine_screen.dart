@@ -1,12 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../../services/notification_service.dart';
 
 class AddMedicineScreen extends StatefulWidget {
   const AddMedicineScreen({super.key});
 
   @override
-  State<AddMedicineScreen> createState() =>
-      _AddMedicineScreenState();
+  State<AddMedicineScreen> createState() => _AddMedicineScreenState();
 }
 
 class _AddMedicineScreenState extends State<AddMedicineScreen> {
@@ -28,9 +30,11 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
   ];
 
   TimeOfDay? _selectedTime;
-
   DateTime? _selectedDate;
 
+  bool _isSaving = false;
+
+  // Select medicine time.
   Future<void> _selectTime() async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
@@ -44,11 +48,14 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
     }
   }
 
+  // Select medicine start date.
   Future<void> _selectDate() async {
+    final DateTime now = DateTime.now();
+
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
+      initialDate: now,
+      firstDate: DateTime(now.year, now.month, now.day),
       lastDate: DateTime(2100),
     );
 
@@ -59,7 +66,9 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
     }
   }
 
+  // Save medicine to Firestore and schedule a reminder.
   Future<void> _saveMedicine() async {
+    // Validate medicine name.
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -69,6 +78,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
       return;
     }
 
+    // Validate dosage.
     if (_dosageController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -78,6 +88,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
       return;
     }
 
+    // Validate medicine time.
     if (_selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -87,6 +98,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
       return;
     }
 
+    // Validate start date.
     if (_selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -96,23 +108,71 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
       return;
     }
 
+    if (_isSaving) {
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
     try {
-      await FirebaseFirestore.instance
-          .collection('medicines')
-          .add({
-        'name': _nameController.text.trim(),
-        'dosage': _dosageController.text.trim(),
+      final String medicineName =
+          _nameController.text.trim();
+
+      final String dosage =
+          _dosageController.text.trim();
+
+      final TimeOfDay selectedTime =
+          _selectedTime!;
+
+      final DateTime selectedDate =
+          _selectedDate!;
+
+      // Save medicine to Firestore.
+      final DocumentReference medicineRef =
+          await FirebaseFirestore.instance
+              .collection('medicines')
+              .add({
+        'name': medicineName,
+        'dosage': dosage,
         'type': _selectedType,
-        'time': _selectedTime!.format(context),
-        'startDate': Timestamp.fromDate(_selectedDate!),
+        'time': selectedTime.format(context),
+        'startDate': Timestamp.fromDate(selectedDate),
         'createdAt': Timestamp.now(),
       });
 
+      // Schedule notification.
+      // The notification service automatically skips this
+      // on Web because scheduled local notifications are
+      // not supported on Chrome.
+      try {
+        await NotificationService.scheduleMedicineReminder(
+          id: medicineRef.id.hashCode.abs(),
+          medicineName: medicineName,
+          dosage: dosage,
+          hour: selectedTime.hour,
+          minute: selectedTime.minute,
+        );
+      } catch (notificationError) {
+        // Medicine is already saved in Firestore.
+        // Notification failure should not delete the medicine.
+        debugPrint(
+          'Notification scheduling failed: $notificationError',
+        );
+      }
+
       if (!mounted) return;
+
+      setState(() {
+        _isSaving = false;
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Medicine saved successfully!'),
+          content: Text(
+            'Medicine saved successfully!',
+          ),
         ),
       );
 
@@ -120,9 +180,15 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
     } catch (e) {
       if (!mounted) return;
 
+      setState(() {
+        _isSaving = false;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text(
+            'Failed to save medicine: $e',
+          ),
         ),
       );
     }
@@ -140,7 +206,9 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Medicine'),
+        title: const Text(
+          'Add Medicine',
+        ),
       ),
 
       body: SafeArea(
@@ -170,6 +238,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
 
               const SizedBox(height: 30),
 
+              // Medicine name.
               const Text(
                 'Medicine Name',
                 style: TextStyle(
@@ -190,13 +259,15 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                   ),
 
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
                   ),
                 ),
               ),
 
               const SizedBox(height: 20),
 
+              // Dosage.
               const Text(
                 'Dosage',
                 style: TextStyle(
@@ -217,13 +288,15 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                   ),
 
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
                   ),
                 ),
               ),
 
               const SizedBox(height: 20),
 
+              // Medicine type.
               const Text(
                 'Medicine Type',
                 style: TextStyle(
@@ -242,16 +315,19 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                   ),
 
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
                   ),
                 ),
 
-                items: _medicineTypes.map((String type) {
-                  return DropdownMenuItem<String>(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
+                items: _medicineTypes.map(
+                  (String type) {
+                    return DropdownMenuItem<String>(
+                      value: type,
+                      child: Text(type),
+                    );
+                  },
+                ).toList(),
 
                 onChanged: (String? newValue) {
                   if (newValue != null) {
@@ -264,6 +340,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
 
               const SizedBox(height: 20),
 
+              // Medicine time.
               const Text(
                 'Medicine Time',
                 style: TextStyle(
@@ -276,18 +353,22 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
               InkWell(
                 onTap: _selectTime,
 
-                borderRadius: BorderRadius.circular(14),
+                borderRadius:
+                    BorderRadius.circular(14),
 
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+
+                  padding:
+                      const EdgeInsets.all(16),
 
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: Colors.grey,
                     ),
 
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
                   ),
 
                   child: Row(
@@ -301,7 +382,8 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                       Text(
                         _selectedTime == null
                             ? 'Select medicine time'
-                            : _selectedTime!.format(context),
+                            : _selectedTime!
+                                .format(context),
                       ),
                     ],
                   ),
@@ -310,6 +392,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
 
               const SizedBox(height: 20),
 
+              // Start date.
               const Text(
                 'Start Date',
                 style: TextStyle(
@@ -322,18 +405,22 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
               InkWell(
                 onTap: _selectDate,
 
-                borderRadius: BorderRadius.circular(14),
+                borderRadius:
+                    BorderRadius.circular(14),
 
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+
+                  padding:
+                      const EdgeInsets.all(16),
 
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: Colors.grey,
                     ),
 
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
                   ),
 
                   child: Row(
@@ -348,8 +435,8 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
                         _selectedDate == null
                             ? 'Select start date'
                             : '${_selectedDate!.day}/'
-                                '${_selectedDate!.month}/'
-                                '${_selectedDate!.year}',
+                              '${_selectedDate!.month}/'
+                              '${_selectedDate!.year}',
                       ),
                     ],
                   ),
@@ -358,20 +445,34 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
 
               const SizedBox(height: 35),
 
+              // Save button.
               SizedBox(
                 width: double.infinity,
                 height: 55,
 
                 child: ElevatedButton.icon(
-                  onPressed: _saveMedicine,
+                  onPressed:
+                      _isSaving ? null : _saveMedicine,
 
-                  icon: const Icon(
-                    Icons.save_outlined,
-                  ),
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child:
+                              CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.save_outlined,
+                        ),
 
-                  label: const Text(
-                    'Save Medicine',
-                    style: TextStyle(
+                  label: Text(
+                    _isSaving
+                        ? 'Saving...'
+                        : 'Save Medicine',
+
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),

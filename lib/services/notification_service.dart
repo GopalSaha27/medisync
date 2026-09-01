@@ -9,15 +9,16 @@ class NotificationService {
 
   // Initialize the notification service.
   static Future<void> initialize() async {
-    // Initialize timezone database.
+    // Initialize the timezone database.
     tz.initializeTimeZones();
 
-    // Android notification settings.
+    // Android initialization settings.
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // General notification settings.
-    const InitializationSettings settings = InitializationSettings(
+    // General initialization settings.
+    const InitializationSettings settings =
+        InitializationSettings(
       android: androidSettings,
     );
 
@@ -30,9 +31,11 @@ class NotificationService {
   // Request notification permission on Android.
   static Future<void> requestPermission() async {
     // Get Android-specific notification implementation.
-    final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
-        _notifications.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+    final AndroidFlutterLocalNotificationsPlugin?
+        androidPlugin =
+        _notifications
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>();
 
     // Request notification permission.
     await androidPlugin?.requestNotificationsPermission();
@@ -49,7 +52,7 @@ class NotificationService {
     // Get the current date and time.
     final now = tz.TZDateTime.now(tz.local);
 
-    // Create today's reminder time.
+    // Create today's scheduled notification time.
     var scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
@@ -60,12 +63,25 @@ class NotificationService {
     );
 
     // If today's time has already passed,
-    // schedule the reminder for tomorrow.
+    // schedule the notification for tomorrow.
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(
         const Duration(days: 1),
       );
     }
+
+    // Define Android notification details.
+    const NotificationDetails notificationDetails =
+        NotificationDetails(
+      android: AndroidNotificationDetails(
+        'medicine_reminders',
+        'Medicine Reminders',
+        channelDescription:
+            'Notifications for medicine reminders',
+        importance: Importance.high,
+        priority: Priority.high,
+      ),
+    );
 
     // Schedule the notification.
     await _notifications.zonedSchedule(
@@ -73,16 +89,7 @@ class NotificationService {
       title: 'Medicine Reminder',
       body: 'Time to take $medicineName ($dosage)',
       scheduledDate: scheduledDate,
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'medicine_reminders',
-          'Medicine Reminders',
-          channelDescription:
-              'Notifications for medicine reminders',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-      ),
+      notificationDetails: notificationDetails,
       androidScheduleMode:
           AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents:
@@ -90,10 +97,9 @@ class NotificationService {
     );
   }
 
-  // Cancel a previously scheduled reminder.
+  // Cancel a scheduled medicine reminder.
   static Future<void> cancelReminder(int id) async {
-    await _notifications.cancel(
-      id: id,
-    );
+    // Cancel the notification using its ID.
+    await _notifications.cancel(id: id);
   }
 }

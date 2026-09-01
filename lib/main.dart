@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'screens/auth/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 import 'firebase_options.dart';
+import 'screens/auth/login_screen.dart';
 import 'services/notification_service.dart';
 
 Future<void> main() async {
-  // Make sure Flutter is initialized before using plugins.
+  // Ensure Flutter is initialized before using Firebase and plugins.
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase.
@@ -16,7 +17,7 @@ Future<void> main() async {
   // Initialize the notification service.
   await NotificationService.initialize();
 
-  // Request notification permission from the user.
+  // Request notification permission.
   await NotificationService.requestPermission();
 
   // Start the application.
@@ -29,7 +30,7 @@ class MediSync extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Remove the debug banner from the top-right corner.
+      // Hide the debug banner.
       debugShowCheckedModeBanner: false,
 
       // Application title.
@@ -40,16 +41,16 @@ class MediSync extends StatelessWidget {
         // Enable Material 3 design.
         useMaterial3: true,
 
-        // Create the color scheme using teal.
+        // Create the application color scheme.
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.teal,
         ),
 
-        // Set the default font.
+        // Set the default application font.
         fontFamily: 'Roboto',
       ),
 
-      // First screen of the application.
+      // Set the first screen of the application.
       home: const LoginScreen(),
     );
   }
